@@ -17,4 +17,24 @@ CHIP PC {
 
     PARTS:
     // Put your code here:
+    // Inc16(in=regOut, out=plus);
+    // Mux16(a=regOut, b=plus, sel=inc, out=ifinc);
+    // Mux16(a=ifinc, b=in, sel=load, out=ifload);
+    // Mux16(a=ifload, sel=reset, out=ifreset);
+    // Register(in=ifreset, load=true, out=out, out=regOut);
+
+    Not(in=reset, out=notreset);
+    And(a=load, b=notreset, out=yesload);
+    Not(in=yesload, out=notload);
+    And(a=inc, b=notload, out=yesinctemp);
+    And(a=yesinctemp, b=notreset, out=yesinc);
+
+    Register(in=aluout, load=true, out=out, out=regout);
+    Or(a=reset, b=yesload, out=resetorload);
+    Or(a=yesload, b=yesinc, out=loadorinc);
+    Or(a=reset, b=yesinc, out=resetorinc);
+    ALU(x=regout, zx=resetorload, nx=yesinc,
+        y=in, zy=resetorinc, ny=yesinc,
+        f=true, no=yesinc,
+        out=aluout);
 }
